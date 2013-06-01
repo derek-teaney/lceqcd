@@ -9,15 +9,46 @@
 *                                                                  *
 ********************************************************************
 ********************************************************************
-********************************************************************
-*                                                                  *
-*         initialisation of the types for MESSAGE PASSING          *
-*                                                                  *
-********************************************************************
 
 
       subroutine typeconstruct
 
+c Purpose:
+c                                                                  
+c     To initialisation of the types for MESSAGE PASSING 
+c     filling up the common blocks described in parallel_mpi_types.inc         
+c
+c Inputs
+c
+c     nc=2      Number of colors from parameter.inc
+c
+c     nx,ny     Maximum size of the xy planes. See parameter.inc
+c
+c     nmu=3     Number of dimensions. See parameter.inc
+c 
+c     ownhalfvol  See parallel_parameter.inc. Describes the local
+c                 lattice
+c
+c     npdim     See parallel_parameter.inc Used as a proxy for nc^2 -1. CHANGEME
+c
+c     myrank/root
+c
+c                See parallel_parameter.inc Used for debugging only. When
+c                printing s commented out (as in production runs) these
+c                parameters
+c
+c     dimproc(1:3)  
+c
+c                See parallel_parameter.inc. Dimesnions of computer grid
+c
+c     extension  Size of domains 
+c
+c Outputs:
+c 
+c     All of the parameters of the common blocks defined in
+c     parallel_mpi_types.inc. See this file for a full description
+c
+c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
       implicit none
 
@@ -41,7 +72,6 @@
       integer    count
       parameter (count=nx*ny/2)
 
-
 *
 *definition of the VARIABLES used for MPI
 *
@@ -60,11 +90,6 @@
 *
       integer iter,iter0,iter1,jump,x,y,z,t,mu
 
-***********************************************************************
-*                                                                     *
-*            ******   SU(2)   Matrices    *****                       *
-*                                                                     *
-***********************************************************************
 
 *
 *create new types
@@ -118,16 +143,14 @@
 
 * now define the types for sending the linkfields
 *
-*consider first the movement down and then up
-*for this two different types of transfer patterns are necessary
+* consider first the movement down and then up
+* for this two different types of transfer patterns are necessary
 *
 * I think Peter has assumed in what follows, that the local lattice is EVEN 
-* in every direction
+* in every direction. A runtime check of this is given in topology.
 *
-*indices : a_of_b/d/t_TYPE(i,even/odd,direction,up/down)
+* indices : a_of_b/d/t_TYPE(i,even/odd,direction,up/down)
 *          i=1 to count; eo=0,1; dir=1 to 4; down=0,up=1
-*
-
 *
 * x-direction for down:
 *    even:
@@ -328,6 +351,7 @@
 *4) to transfer a higgs field
 *
 
+      ! CHANGEME this is really an abuse this npdim=nc^2 - 1
       CALL MPI_TYPE_CONTIGUOUS(npdim,MPI_REAL,higgstype,ierror)
       CALL MPI_TYPE_COMMIT(higgstype,ierror)
       CALL MPI_TYPE_EXTENT(higgstype,extent2,ierror)
@@ -363,6 +387,7 @@
 *   and to receive it in a contiguous buffer
 *   ((usefull),(usefull),(usefull))
 
+      ! why have count here and and not ownhafvol(2)?
       CALL MPI_TYPE_CONTIGUOUS(count,higgstype,a_CONT_TYPE,ierror)
       CALL MPI_TYPE_COMMIT(a_CONT_TYPE,ierror)
 
