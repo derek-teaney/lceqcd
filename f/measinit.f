@@ -247,8 +247,9 @@
 *error message                                                          
 *                                                                       
       goto 155                                                           
-  150 if (myrank.eq.root) call abort ('break :while reading the         &
-     &    random numbers')                                              
+  150 if (myrank.eq.root) print *,
+     &     'break :while reading the random numbers'
+           stop
   155 continue                                                           
                                                                         
                                                                         
@@ -263,35 +264,35 @@
 
  1003 format('# ',i5.5)
 
- 1000 format('action_s', i2.2,  '_BE', i5.5, '_x', i5.5, '_y', i5.5,
-     &                                        '_U',  i6.6)
+ 1000 format('action_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
+     &                                        '_u',  i6.6)
 
- 1100 format('joblog_s', i2.2,  '_BE', i5.5, '_x', i5.5, '_y', i5.5,
-     &                                        '_U',  i6.6)
+ 1100 format('joblog_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
+     &                                        '_u',  i6.6)
 
- 1200 format('u_conf_s', i2.2,  '_BE', i5.5, '_x', i5.5, '_y', i5.5,
-     &                                        '_U',  i6.6)
+ 1200 format('u_conf_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
+     &                                        '_u',  i6.6)
 
- 1300 format('a_conf_s', i2.2,  '_BE', i5.5, '_x', i5.5, '_y', i5.5,
-     &                                        '_U',  i6.6)
+ 1300 format('a_conf_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
+     &                                        '_u',  i6.6)
 
- 1400 format('random_s', i2.2,  '_BE', i5.5, '_x', i5.5, '_y', i5.5,
-     &                                        '_U',  i6.6)
+ 1400 format('random_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
+     &                                        '_u',  i6.6)
 
- 1500 format('correl_s', i2.2,  '_BE', i5.5, '_x', i5.5, '_y', i5.5,
-     &                                        '_U',  i6.6)
+ 1500 format('correl_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
+     &                                        '_u',  i6.6)
  
- 1600 format('afield_s', i2.2,  '_BE', i5.5, '_x', i5.5, '_y', i5.5,
-     &                                        '_U',  i6.6)
+ 1600 format('afield_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
+     &                                        '_u',  i6.6)
  
- 1700 format('checkp_s', i2.2,  '_BE', i5.5, '_x', i5.5, '_y', i5.5,
-     &                                        '_U',  i6.6)
+ 1700 format('checkp_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
+     &                                        '_u',  i6.6)
 
- 1800 format('polyak_s', i2.2,  '_BE', i5.5, '_x', i5.5, '_y', i5.5,
-     &                                        '_U',  i6.6)
+ 1800 format('polyak_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
+     &                                        '_u',  i6.6)
 
- 1900 format('corra2_s', i2.2,  '_BE', i5.5, '_x', i5.5, '_y', i5.5,
-     &                                        '_U',  i6.6)
+ 1900 format('corra2_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
+     &                                        '_u',  i6.6)
 
       return                                                            
       end
