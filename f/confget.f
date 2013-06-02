@@ -103,7 +103,8 @@
 *
       complex    uhelp(2)
       real       ahelp(3)
-      real       x(4),s1,s2,s3,s4,s5,r
+      real       xx(4)
+      real       s1,s2,s3,s4,s5,r
       integer site,eo,mu
 
 
@@ -115,20 +116,20 @@
          do eo=0,1
             do site=1,ownhalfvol(3)
                call random_number(r)
-               x(1) = 2.0 * r - 1.0
-               s1=sqrt(1.0-x(1)*x(1))
+               xx(1) = 2.0 * r - 1.0
+               s1=sqrt(1.0-xx(1)*xx(1))
                call random_number(r)
                s2 = 2.0 * r - 1.0
-               x(2) = s1*s2
+               xx(2) = s1*s2
                s3 = sqrt(1.0 - s2*s2)
                s4 = s1*s3
                call random_number(r)
                s5=twopi * r
-               x(4)=s4*cos(s5)
-               x(3)=s4*sin(s5)
+               xx(4)=s4*cos(s5)
+               xx(3)=s4*sin(s5)
 
-               u(1,site,eo,mu) = cmplx(x(1),x(2))
-               u(2,site,eo,mu) = cmplx(x(3),x(4))
+               u(1,site,eo,mu) = cmplx(xx(1),xx(2))
+               u(2,site,eo,mu) = cmplx(xx(3),xx(4))
             end do 
          end do
       end do
@@ -183,7 +184,8 @@
 *
       complex    uhelp(2)
       real       ahelp(3)
-      real       x(4),s1,s2,s3,s4,s5,r
+      real       xx(4)
+      real       s1,s2,s3,s4,s5,r
       integer site,eo,mu,i
 
 * create random su(2) matrix via 
@@ -193,24 +195,24 @@
       if (myrank.eq.root) then
 
          call random_number(r)
-         x(1) = 2.0 * r - 1.0
-         s1=sqrt(1.0-x(1)*x(1))
+         xx(1) = 2.0 * r - 1.0
+         s1=sqrt(1.0-xx(1)*xx(1))
          call random_number(r)
          s2 = 2.0 * r - 1.0
-         x(2) = s1*s2
+         xx(2) = s1*s2
          s3 = sqrt(1.0 - s2*s2)
          s4 = s1*s3
          call random_number(r)
          s5=twopi * r
-         x(4)=s4*cos(s5)
-         x(3)=s4*sin(s5)
+         xx(4)=s4*cos(s5)
+         xx(3)=s4*sin(s5)
 
-         uhelp(1)= cmplx(x(1),x(2))
-         uhelp(2)= cmplx(x(3),x(4))
+         uhelp(1)= cmplx(xx(1),xx(2))
+         uhelp(2)= cmplx(xx(3),xx(4))
 
-         s1=x(1)**2 + x(2)**2 + x(3)**2 + x(4)**2
+         s1=xx(1)**2 + xx(2)**2 + xx(3)**2 + xx(4)**2
          
-         write(*,*) 'laenge=',s1
+         write(*,*) 'Length of S1=',s1
       endif
 
 *
@@ -221,9 +223,14 @@
 *
 *then copy it to all the links
 *
-      u(:,:,:,:)=reshape(source=(/((((uhelp(i), i=1,2), site=1,maxarray),
-     &                                            eo=even,odd), mu=1,nmu)/), 
-     &                    shape=(/nc, maxarray,2,nmu/))
+      do site=1,maxarray
+      do eo=even,odd
+      do mu=1,nmu
+         u(:,site,eo,mu) = uhelp
+      enddo
+      enddo
+      enddo
+
 
 *
 * create a higgsfield with random direction and length 1 on root
@@ -248,11 +255,11 @@
 *
 *then copy it to all the links
 *
-      a(:,:,:)=reshape(source=(/(((ahelp(i), i=1,3), site=1,maxarray),
-     &                                            eo=even,odd)/), 
-     &                    shape=(/nc, maxarray,2/))
-
-
+      do site=1,maxarray
+      do eo=even,odd
+         a(:,site,eo) = ahelp
+      enddo
+      enddo
 
       end subroutine onerandconf
 
@@ -283,17 +290,21 @@
 *
 *local variables
 *
-      integer site, eo, mu
+      integer site, eo, mu,i
 
-* use array constructors to get the result
+      do site=1,maxarray
+      do eo=even,odd
+      do mu=1,nmu
+         u(:,site,eo,mu) = (/(1.0, 0.0), (0.0, 0.0)/)
+      enddo
+      enddo
+      enddo
 
-      u(:,:,:,:)=reshape(source=(/((( (1.0,0.0),(0.0,0.0), site=1,maxarray),
-     &                                            eo=even,odd), mu=1,nmu)/), 
-     &                    shape=(/nc, maxarray,2,nmu/))
-
-      a(:,:,:)  =reshape(source=(/((( 0 , 0 , 1),          site=1,maxarray),
-     &                                            eo=even,odd)           /),
-     &                    shape=(/nmu,maxarray,2    /))
+      do site=1,maxarray
+      do eo=even,odd
+         a(:,site,eo) = (/0.0, 0.0, 1.0/)
+      enddo
+      enddo
 
       end subroutine unitconf
 
@@ -345,10 +356,12 @@
 *
 * open the files
 *
-         open(Unit=u_unit,file=u_conf_file,status='unknown',access='direct',
+         open(Unit=u_unit,file=u_conf_file,status='unknown',
+     &                 access='direct',
      &                 form='unformatted',recl=u_rl)
 
-         open(Unit=a_unit,file=a_conf_file,status='unknown',access='direct',
+         open(Unit=a_unit,file=a_conf_file,status='unknown',
+     &                 access='direct',
      &                 form='unformatted',recl=a_rl)
       end if
       
