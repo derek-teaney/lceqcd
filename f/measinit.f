@@ -9,45 +9,45 @@
 *                                                                  *
 ********************************************************************
 ********************************************************************
-********************************************************************        
-*                                                                  *        
-*         initialisation of the measured quantities                *        
-*                                                                  *        
-********************************************************************        
+********************************************************************
+*                                                                  *
+*         initialisation of the measured quantities                *
+*                                                                  *
+********************************************************************
 
-      subroutine measinit                                                
-                                                                        
+      subroutine measinit
+
       implicit none
-*                                                                       
-*include message passing features                                       
-*                                                                       
-      include 'mpif.h'                                                    
-      include 'parallel_parameter.inc'                                    
-      include 'parallel_mpi_types.inc'                                    
-*                                                                       
-*including global variables, parameters and common blocks               
-*                                                                       
-      include 'parameter.inc'                                             
-      include 'measurement.inc'                                           
-      include 'input_parameter.inc'                                       
+*
+*include message passing features
+*
+      include 'mpif.h'
+      include 'parallel_parameter.inc'
+      include 'parallel_mpi_types.inc'
+*
+*including global variables, parameters and common blocks
+*
+      include 'parameter.inc'
+      include 'measurement.inc'
+      include 'input_parameter.inc'
       include 'pointer.inc'
       include 'filenames.inc'
-*                                                                       
-*local variables                                                        
-*                                                                       
-      integer i, betaint,xint,yint, nproc2, skip(1), n, 
+*
+*local variables
+*
+      integer i, betaint,xint,yint, nproc2, skip(1), n,
      &        mu, site
 
 *************************************************************************
-     
-*
-* initialisation of pointer to own site                                 
-*                                                                       
-      do  i = 1, nsiteshalf                                            
-         normalsites (i) = i                                              
-      end do    
 
-      betaint    = nint(1000 * beta)                                        
+*
+* initialisation of pointer to own site
+*
+      do  i = 1, nsiteshalf
+         normalsites (i) = i
+      end do
+
+      betaint    = nint(1000 * beta)
       xint  = nint(10000 * x)
       yint  = nint(10000 * y)
 *
@@ -57,13 +57,13 @@
 * action_file
 
       if (myrank.eq.root) then
-         
+
          write (action_file, fmt = 1000) n_lattice(3),
      &                betaint, xint, yint, confstart
-         
+
          action_unit = 3
 
-         open (action_unit, file=action_file, status='unknown', 
+         open (action_unit, file=action_file, status='unknown',
      &                              position='append')
 
          write(action_unit,1001) n_lattice
@@ -79,7 +79,7 @@
 
          joblog_unit = 4
 
-         open (joblog_unit, file = joblog_file, status = 'unknown', 
+         open (joblog_unit, file = joblog_file, status = 'unknown',
      &                                  position ='append')
 
          write(joblog_unit,1001) n_lattice
@@ -106,9 +106,9 @@
      &                betaint,xint,yint,confstart
 
          corr_unit = 31
-         open(corr_unit, file=corr_file, status='unknown', 
+         open(corr_unit, file=corr_file, status='unknown',
      &                                   position='append' )
-         
+
            write(corr_unit,1001) n_lattice
            write(corr_unit,1002) beta, x, y
            write(corr_unit,1003) nsweep
@@ -141,7 +141,7 @@
            write(checkp_unit,1002) beta, x, y
            write(checkp_unit,1003) nsweep
          close(checkp_unit)
-        
+
 * polyak_file
 
          write (polyak_file, fmt = 1800) n_lattice(3),
@@ -155,7 +155,7 @@
            write(polyak_unit,1002) beta, x, y
            write(polyak_unit,1003) nsweep
          close(polyak_unit)
-      
+
 
 * corra2_file
 
@@ -173,90 +173,90 @@
       end if
 
 *
-*read the random numbers from the disc if rand = 1                      
-*                                                                       
-      if (rand.eq.1) then                                                
-        if (myrank.eq.root) then                                         
-          write (random_number_file, fmt = 1400) n_lattice(3),  
+*read the random numbers from the disc if rand = 1
+*
+      if (rand.eq.1) then
+        if (myrank.eq.root) then
+          write (random_number_file, fmt = 1400) n_lattice(3),
      &                betaint, xint, yint,  confstart
 
           random_number_unit = 2
 
-          open (random_number_unit,file=random_number_file,status ='old')    
-          read (random_number_unit, *, err = 150) (iseedblock (i), i = 0, 255) 
-          close (random_number_unit)                                                      
-        endif                                                            
-                                                                        
-*                                                                       
-*then scatter them to the other processes                               
-*                                                                       
-        call mpi_scatter (iseedblock (0), 1, mpi_integer, iseed, 1,    
-     &  mpi_integer, root, comm, ierror)                                
-                                                                        
-*                                                                       
-*take new random numbers                                                
-*                                                                       
-      else                                                               
-        iseed = 0                                                        
-      endif                                                              
-                                                                        
-*                                                                       
-*if still some seeds are zero (because the numbers of processes has     
-*been changed since the last update) the seeds have to be initialised   
-*the period of the numbers is 2**46                                     
-*the first argument of ranset sets the seed and the second skips        
-*some numbers depending on how many processes are used                  
-*                                                                       
-                                                                        
-*                                                                       
-*first find out how many processes are used                             
-*                                                                       
-      call mpi_comm_size (comm, nproc2, ierror)                          
-      call mpi_comm_rank (comm, myrank, ierror)                          
-                                                                        
-*                                                                       
-*then initialise those seeds wich are still zero                        
-*                                                                       
+          open (random_number_unit,file=random_number_file,status ='old')
+          read (random_number_unit, *, err = 150) (iseedblock (i), i = 0, 255)
+          close (random_number_unit)
+        endif
+
+*
+*then scatter them to the other processes
+*
+        call mpi_scatter (iseedblock (0), 1, mpi_integer, iseed, 1,
+     &  mpi_integer, root, comm, ierror)
+
+*
+*take new random numbers
+*
+      else
+        iseed = 0
+      endif
+
+*
+*if still some seeds are zero (because the numbers of processes has
+*been changed since the last update) the seeds have to be initialised
+*the period of the numbers is 2**46
+*the first argument of ranset sets the seed and the second skips
+*some numbers depending on how many processes are used
+*
+
+*
+*first find out how many processes are used
+*
+      call mpi_comm_size (comm, nproc2, ierror)
+      call mpi_comm_rank (comm, myrank, ierror)
+
+*
+*then initialise those seeds wich are still zero
+*
       if(nproc==1)then
          call random_seed(put=iseed)
       else
-         n = nproc2 / 2                                                     
-                                                                        
- 2000    continue                                                           
-                                                                        
-         if (iseed(1).eq.0) then                                               
-                                                                        
-            if (myrank.ge.n) then                                            
-               skip = (2**46 / (2 * n) ) * ( (myrank - n) * 2 + 1)            
-            elseif (myrank.ne.0) then                                        
-               n = n / 2                                                      
-               goto 2000                                                      
-            elseif (myrank.eq.0) then                                        
-               skip = 0                                                       
-            endif                                                            
-            
+         n = nproc2 / 2
+
+ 2000    continue
+
+         if (iseed(1).eq.0) then
+
+            if (myrank.ge.n) then
+               skip = (2**46 / (2 * n) ) * ( (myrank - n) * 2 + 1)
+            elseif (myrank.ne.0) then
+               n = n / 2
+               goto 2000
+            elseif (myrank.eq.0) then
+               skip = 0
+            endif
+
             call random_seed(put=skip)
-            rand = 1                                                         
-         else                                                               
+            rand = 1
+         else
             call random_seed(put=iseed)
          endif
-      endif                                                              
-                                                                        
-                                                                        
+      endif
+
+
 *
-*error message                                                          
-*                                                                       
-      goto 155                                                           
+*error message
+*
+      goto 155
   150 if (myrank.eq.root) print *,
      &     'break :while reading the random numbers'
            stop
-  155 continue                                                           
-                                                                        
-                                                                        
-                                                                        
-*                                                                       
-*format                                                                 
-*                                                                       
+  155 continue
+
+
+
+*
+*format
+*
 
  1001 format('# ',3(i2.2,1x))
 
@@ -281,10 +281,10 @@
 
  1500 format('correl_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
      &                                        '_u',  i6.6)
- 
+
  1600 format('afield_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
      &                                        '_u',  i6.6)
- 
+
  1700 format('checkp_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
      &                                        '_u',  i6.6)
 
@@ -294,7 +294,7 @@
  1900 format('corra2_s', i2.2,  '_be', i5.5, '_x', i5.5, '_y', i5.5,
      &                                        '_u',  i6.6)
 
-      return                                                            
+      return
       end
 
 
