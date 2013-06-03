@@ -1,4 +1,0 @@
-lceqcd
-======
-
-Light cone eqcd
