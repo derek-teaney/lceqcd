@@ -77,10 +77,10 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 *
       integer a_of_b_TYPE(count,0:1,nmu,0:1),
      2        a_of_t_TYPE(count,0:1,nmu,0:1),
-     6        a_of_b(8),
-     8        a_of_t(8)
+     6        a_of_b(max(nx,ny,nz)),
+     8        a_of_t(max(nx,ny,nz))
 
-      integer (kind=MPI_ADDRESS_KIND)  ::  a_of_d(8),  
+      integer (kind=MPI_ADDRESS_KIND)  ::  a_of_d(max(nx,ny,nz)),  
      &        a_of_d_TYPE(count,0:1,nmu,0:1)
 
       integer eo
