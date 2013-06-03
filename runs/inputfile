@@ -1,0 +1,20 @@
+16 16 16    !nx/ny/nz global lattice size
+01 02 02    !dimproc numbers of processes in every dimension mu=1-3
+004         !nproc       total numbers of processes
+0           ! init for gaugefields 0=rand,1=onerand,2=unit,3=old
+0           !rand        old(=1) or new(=0) random numbers
+1           !save        save on disc yes or no (1,0)
+000000      !confstart   starting configuration
+ 9.000      !beta
+0.1000      !x
+0.5000      !y
+1.8000      !lambda overrelaxation parameter
+1.000000    !gauge transformation parameter
+0.100E-08   !limit_or precision of the condition d_mu A_mu=0
+0.100E-04   !limit_it precision of the condition d_mu A_mu=0
+001         !inorm   number of iteration  followed by norm. 
+0           !nsweep_flag  (0=number of sweeps 1=max time in min) 
+240         !ntime       maximal time for the program in minuntes 
+00001       !nsweeps       number of sweeps 
+00001       !imeas  number of sweeps followed by measurement
+000         !imode  mode for the heatbath algorithm

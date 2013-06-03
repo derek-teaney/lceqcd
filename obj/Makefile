@@ -82,9 +82,9 @@ $(SRCDIR)/main.f
 SRC1O     = $(patsubst $(SRCDIR)%.f, $(OBJDIR)%.o, $(SRC1))
 
 
-all: $(EXEDIR)/main 
+all: $(EXEDIR)/main.exe
 
-$(EXEDIR)/main: $(OBJDIR)/main.o $(SRC1O) 
+$(EXEDIR)/main.exe: $(OBJDIR)/main.o $(SRC1O) 
 	$(F90) $(LFLAGS) $(FFLAGS) $(OBJDIR)/main.o $(SRC1O) -o $@ $(LIBS) \
 
 
