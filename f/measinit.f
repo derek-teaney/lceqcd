@@ -37,6 +37,7 @@
 *
       integer i, betaint,xint,yint, nproc2, skip(1), n,
      &        mu, site
+      real rvec(nseed)
 
 *************************************************************************
 
@@ -183,15 +184,16 @@
           random_number_unit = 2
 
           open (random_number_unit,file=random_number_file,status ='old')
-          read (random_number_unit, *, err = 150) (iseedblock (i), i = 0, 255)
+          read (random_number_unit, *, err = 150) 
+     &                       (iseedblock (i), i = 0,nseedblock)
           close (random_number_unit)
         endif
 
 *
 *then scatter them to the other processes
 *
-        call mpi_scatter (iseedblock (0), 1, mpi_integer, iseed, 1,
-     &  mpi_integer, root, comm, ierror)
+        call mpi_scatter (iseedblock(0), nseed, mpi_integer,
+     &      iseed(1),nseed, mpi_integer, root, comm, ierror)
 
 *
 *take new random numbers
@@ -201,58 +203,29 @@
       endif
 
 *
-*if still some seeds are zero (because the numbers of processes has
-*been changed since the last update) the seeds have to be initialised
-*the period of the numbers is 2**46
-*the first argument of ranset sets the seed and the second skips
-*some numbers depending on how many processes are used
-*
-
-*
 *first find out how many processes are used
 *
       call mpi_comm_size (comm, nproc2, ierror)
       call mpi_comm_rank (comm, myrank, ierror)
 
 *
-*then initialise those seeds wich are still zero
+*then initialise the random number generator on each processor
 *
-      if(nproc==1)then
-         call random_seed(put=iseed)
-      else
-         n = nproc2 / 2
-
- 2000    continue
-
-         if (iseed(1).eq.0) then
-
-            if (myrank.ge.n) then
-               skip = (2**46 / (2 * n) ) * ( (myrank - n) * 2 + 1)
-            elseif (myrank.ne.0) then
-               n = n / 2
-               goto 2000
-            elseif (myrank.eq.0) then
-               skip = 0
-            endif
-
-            call random_seed(put=skip)
-            rand = 1
-         else
-            call random_seed(put=iseed)
-         endif
-      endif
-
-
+      call rluxgo(3,314159+myrank,0,0)
+      call ranlux(rvec,nseed) 
+      iseed=int(10**6*rvec)
+      call random_seed(put=iseed)
+      rand=1
 *
 *error message
 *
       goto 155
+
   150 if (myrank.eq.root) print *,
      &     'break :while reading the random numbers'
            stop
+
   155 continue
-
-
 
 *
 *format
