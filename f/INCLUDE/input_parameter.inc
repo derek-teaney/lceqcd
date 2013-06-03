@@ -45,6 +45,7 @@ c
       INTEGER  imeas              ! number of steps without measurements
       INTEGER  imode              ! heatbath mode
 
+      ! Below this line is not used in MPI type
       INTEGER  iseed(nseed)       ! local seed for the rd nb generator
       INTEGER  iseedblock(0:nseedblock) ! all seeds
       REAL     beta_a,beta_2,beta_4 ! aux. parameters
