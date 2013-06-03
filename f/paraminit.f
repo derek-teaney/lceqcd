@@ -18,11 +18,11 @@
 
       subroutine paraminit
 
+      USE mpi
       implicit none
 *
 *including all global MESSAGE PASSING variables 
 *
-      INCLUDE 'mpif.h'
       INCLUDE 'parallel_parameter.inc'
       INCLUDE 'parallel_mpi_types.inc'
 *
@@ -126,20 +126,15 @@
          write(*,*)'x                                    :', x
          write(*,*)'y                                    :', y
          write(*,*)'overrelaxation parameter             :', lambda
+         write(*,*)'gauge transformation parameter       :', alpha
          write(*,*)'limit_or                             :', limit_or
+         write(*,*)'limit_it parameters                  :', limit_it
          write(*,*)'inorm                                :', inorm
          write(*,*)'flag (0=nb of sweeps, 1=time in min) :', nsweep_flag  
          write(*,*)'max time for the program in min      :', ntime   
          write(*,*)'number of sweeps                     :', nsweep       
          write(*,*)'imeas                                :', imeas        
          write(*,*)'heatbath mode                        :', imode        
-         
- 1000    format('Adjoint Higgs Modell on a '/
-     &        6x,i2,' X 'i2,' X ',i2,' lattice'/
-     &     'on a  ',i2,' X ',i2,' X ',i2,' processor lattice'/
-     &        'number of processors :',i3/)
-         
-         
       endif
 *
 *     create new types for the broadcast
@@ -151,13 +146,48 @@
       CALL MPI_BCAST(n_lattice(1),1,latconftype,root,MPI_COMM_WORLD,
      &     ierror)
       CALL MPI_BCAST(nproc,1,MPI_INTEGER,root,MPI_COMM_WORLD,ierror)
+
       beta_a=beta
       beta_2=beta_a*( 3+8*y/beta**2-sigma*(4+5*x)/(2*pi*beta)-
      &       ( (20*x-10*x**2)*(log(1.5*beta)+0.09)+8.7+11.6*x)/(2*pi**2*beta**2) )
       beta_4=x*beta
           
+      do i = 0, nproc-1
+         if(myrank==i)then
+            write(*,*)'********************************************'
+            write(*,*)'myrank = ', myrank
+            write(*,*)'********************************************'
+            write(*,1000) n_lattice(1), n_lattice(2), n_lattice(3),
+     &                  dimproc(1),   dimproc(2),   dimproc(3)   
+            write(*,*)'init 0=rand,1=onerand,2=unit,3=old   :', init        
+            write(*,*)'rand 1=old, 0=new random numbers     :', rand        
+            write(*,*)'save on disc yes or no (1,0)         :', save        
+            write(*,*)'start configuration                  :', confstart   
+
+            write(*,*)'beta                                 :', beta        
+            write(*,*)'x                                    :', x
+            write(*,*)'y                                    :', y
+            write(*,*)'overrelaxation parameter             :', lambda
+            write(*,*)'gauge transformation parameter       :', alpha
+            write(*,*)'limit_or                             :', limit_or
+            write(*,*)'limit_it parameters                  :', limit_it
+            write(*,*)'inorm                                :', inorm
+            write(*,*)'flag (0=nb of sweeps, 1=time in min) :', nsweep_flag  
+            write(*,*)'max time for the program in min      :', ntime   
+            write(*,*)'number of sweeps                     :', nsweep       
+            write(*,*)'imeas                                :', imeas        
+            write(*,*)'heatbath mode                        :', imode        
+
+         end if
+         call MPI_BARRIER(comm, ierror)
+      end do
       
       return
+
+1000  format('Adjoint Higgs Modell on a '/
+     &        6x,i2,' X 'i2,' X ',i2,' lattice'/
+     &     'on a  ',i2,' X ',i2,' X ',i2,' processor lattice'/
+     &        'number of processors :',i3/)
 
       end
       
