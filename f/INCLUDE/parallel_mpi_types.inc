@@ -21,8 +21,8 @@
 * internal identifier for transfered MPI-Data
       INTEGER matrixtype,morematrixtype,
      &        higgstype,morehiggstype,
-     &	      load_u_type,save_u_type,
-     &	      load_a_type,save_a_type,
+     &        load_u_type,save_u_type,
+     &        load_a_type,save_a_type,
      &        paramettype,configtype,latconftype,
      &        u_CONT_TYPE,a_CONT_TYPE,
      &        u_VECTOR_dnTYPE(npdim,0:1),u_VECTOR_upTYPE(npdim,0:1),
@@ -41,9 +41,6 @@
 
       INTEGER load_rec_status(MPI_STATUS_SIZE)
 
-
-
-
 ***********************************************************************
 *
 *                     THE COMMON BLOCK
@@ -60,5 +57,37 @@
      &                   a_VECTOR_dnTYPE,a_VECTOR_upTYPE
 
 
-
-
+c matrixtype     A message type (integer) containing 
+c                containing the link variables (two complex numbers in SU2)
+c
+c morematrixtype  Doesn't seem to be used.
+c
+c higgstype      A message type containing the adjoint higgs field (three
+c                real  numbers in su2) 
+c
+c morehiggstype  Doesn't seem to be used.
+c  
+c load_u_type and save_u_type
+c
+c      Two message types describing an xyplane used for loading and saving
+c      of gauge configs. Only used by confget and confsav 
+c
+c u_VECTOR_TYPE and a_VECTOR_type
+c
+c      Two messages describing vectors of U-variables (links) and A-variables
+c      (higges) 
+c
+c u_VECTOR_dnTYPE(npdim,0:1),u_VECTOR_upTYPE(npdim,0:1),
+c a_VECTOR_dnTYPE(npdim,0:1),a_VECTOR_upTYPE(npdim,0:1)
+c
+c      Four message types arrays describing the data transferred in a given 
+c      direction.  For example
+c     
+c      u_VECTOR_dn(1,0) describes the data which is transferred when
+c      sending the even link variables in the x direction  to the processor
+c      neighboring smaller x
+c
+c      a_VECTOR_up(3,1) describes the data which is transferred when
+c      sending the odd link variables in the z direction  to the processor
+c      neighboring larger z.
+c
