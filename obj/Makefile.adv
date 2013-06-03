@@ -1,0 +1,79 @@
+FFLAGS =  -ffixed-line-length-256 
+LFLAGS = 
+
+OBJDIR = ./
+SRCDIR = ../f/
+EXEDIR = ../f/
+#ARCH = `uname`
+#ifeq ($(ARCH),Linux)
+#   F90 = mpif90
+#   INCPATH = -I $(SRCDIR)INCLUDE/ -I /usr/lib64/openmpi/1.4-gcc/lib/
+
+#   F90 = /usr/lib64/mpich2/bin/mpif90
+#   INCPATH = -I $(SRCDIR)INCLUDE/ -I /usr/include/mpich2-x86_64/
+
+#endif
+#ifeq ($(ARCH),Darwin)
+   F90 = openmpif90
+   INCPATH = -I $(SRCDIR)INCLUDE/ -I /opt/local/lib/
+#endif
+
+SRC1 = \
+$(SRCDIR)adresses.f \
+$(SRCDIR)a_force.f \
+$(SRCDIR)agauge.f \
+$(SRCDIR)ahiggs2.f \
+$(SRCDIR)ahiggs3.f \
+$(SRCDIR)confget.f \
+$(SRCDIR)confsave.f \
+$(SRCDIR)correlator.f \
+$(SRCDIR)finalize.f \
+$(SRCDIR)gauss.f \
+$(SRCDIR)heat_kpi.f \
+$(SRCDIR)initialize.f \
+$(SRCDIR)it_gauge_fixing.f \
+$(SRCDIR)landau_gauge.f \
+$(SRCDIR)luxury.f \
+$(SRCDIR)matmul.f \
+$(SRCDIR)meas1.f \
+$(SRCDIR)meas2a.f \
+$(SRCDIR)measinit.f \
+$(SRCDIR)or_gauge_fixing1.f \
+$(SRCDIR)paraminit.f \
+$(SRCDIR)paratypeconstruct.f \
+$(SRCDIR)polyakov.f \
+$(SRCDIR)readdata.f \
+$(SRCDIR)renorm.f \
+$(SRCDIR)scalarcorr.f \
+$(SRCDIR)staples.f \
+$(SRCDIR)testmax.f \
+$(SRCDIR)topology.f \
+$(SRCDIR)typeconstruct.f \
+$(SRCDIR)u_f_renorm.f \
+
+MAIN1 =  \
+$(SRCDIR)main.f
+
+SRC1O     = $(patsubst $(SRCDIR)%.f, $(OBJDIR)%.o, $(SRC1))
+SRC1D     = $(patsubst $(SRCDIR)%.f, $(OBJDIR)%.d, $(SRC1))
+MAIN1D    = $(patsubst $(SRCDIR)%.f, $(OBJDIR)%.d, $(MAIN1))
+
+
+all: $(EXEDIR)main 
+
+$(EXEDIR)main: $(OBJDIR)main.o $(SRC1O) 
+	$(F90) $(LFLAGS) $(FFLAGS) $(OBJDIR)main.o $(SRC1O) -o $@ $(LIBS) \
+
+
+include $(SRC1D)  $(MAIN1D) 
+
+SUFFIXES: .d .f
+
+$(OBJDIR)%.d : $(SRCDIR)%.f
+	./fdepends.pl $< $@  "$(INCPATH)" "-I"
+$(OBJDIR)%.o : $(SRCDIR)%.f
+	$(F90) $(INCPATH) -c $(FFLAGS) $<  -o $@
+
+clean:
+	rm $(OBJS) $(DEPENDS)
+
