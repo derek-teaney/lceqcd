@@ -73,8 +73,8 @@
 *                       ownvol(2) volume (i.e. area)  of xy direction
 *                       ownvol(3) volume of xyz direction
 *                        
-*      ownvolhalf(1:3)  Same as ownvol but 1/2,1/4,1/8 as much for each
-*                       direction.
+*      ownvolhalf(1:3)  Same as ownvol but half has  much for each
+*                       direction, ownvol(1:3)/2
 *
 *      lowbound(1:3) and upbound(1:3)
 *
