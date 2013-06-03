@@ -51,12 +51,12 @@ c
 c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
       implicit none
+      include 'mpif.h'
 
 
 *
 *including all global MESSAGE PASSING variables 
 *
-      INCLUDE 'mpif.h'
       INCLUDE 'parallel_parameter.inc'
       INCLUDE 'parallel_mpi_types.inc'
 
@@ -76,20 +76,21 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 *definition of the VARIABLES used for MPI
 *
       integer a_of_b_TYPE(count,0:1,nmu,0:1),
-     1        a_of_d_TYPE(count,0:1,nmu,0:1),
      2        a_of_t_TYPE(count,0:1,nmu,0:1),
      6        a_of_b(8),
-     7        a_of_d(8),
      8        a_of_t(8)
 
-      integer eo,ad2,ad1,extent2,extent
+      integer (kind=MPI_ADDRESS_KIND)  ::  a_of_d(8),  
+     &        a_of_d_TYPE(count,0:1,nmu,0:1)
+
+      integer eo
+      integer (kind=MPI_ADDRESS_KIND) :: ad2,ad1,extent2,lb,extent
 
 
 *
 *local VARIABLES
 *
       integer iter,iter0,iter1,jump,x,y,z,t,mu
-
 
 *
 *create new types
@@ -98,18 +99,19 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
       CALL MPI_TYPE_CONTIGUOUS(nc,MPI_COMPLEX,matrixtype,ierror)
       CALL MPI_TYPE_COMMIT(matrixtype,ierror)
-      CALL MPI_TYPE_EXTENT(matrixtype,extent2,ierror)
+      lb=2
+      CALL MPI_TYPE_GET_EXTENT(matrixtype,lb,extent2,ierror)
 
-      CALL MPI_ADDRESS(u(1,1,0,1),ad1,ierror)
-      CALL MPI_ADDRESS(u(1,2,0,1),ad2,ierror)
+      CALL MPI_GET_ADDRESS(u(1,1,0,1),ad1,ierror)
+      CALL MPI_GET_ADDRESS(u(1,2,0,1),ad2,ierror)
 
       extent=ad2-ad1
 
-*      if(myrank==root)then
-*         write (*,*) 'matrixtype'
-*         write (*,*) 'MPI_EXTENT=',extent2
-*         write (*,*) 'EXTENT=',extent
-*      end if
+      if(myrank==root)then
+         write (*,*) 'matrixtype'
+         write (*,*) 'MPI_EXTENT=',extent2
+         write (*,*) 'EXTENT=',extent
+      end if
 
 
 ****************************************************************************
@@ -195,7 +197,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
 * to send the even points down in x-direction
 
-         CALL MPI_TYPE_STRUCT(iter0,a_of_b_TYPE(1,0,1,0),
+         CALL MPI_TYPE_CREATE_STRUCT(iter0,a_of_b_TYPE(1,0,1,0),
      &                              a_of_d_TYPE(1,0,1,0),
      &                              a_of_t_TYPE(1,0,1,0),
      &        u_VECTOR_dnTYPE(1,0),ierror)
@@ -203,7 +205,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
             
 * to send the odd points down in x-direction
          
-         CALL MPI_TYPE_STRUCT(iter0,a_of_b_TYPE(1,1,1,0),
+         CALL MPI_TYPE_CREATE_STRUCT(iter0,a_of_b_TYPE(1,1,1,0),
      &                              a_of_d_TYPE(1,1,1,0),
      &                              a_of_t_TYPE(1,1,1,0),
      &        u_VECTOR_dnTYPE(1,1),ierror)
@@ -211,7 +213,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
          
 * to send the even points up in x-direction
          
-         CALL MPI_TYPE_STRUCT(iter0,a_of_b_TYPE(1,0,1,1),
+         CALL MPI_TYPE_CREATE_STRUCT(iter0,a_of_b_TYPE(1,0,1,1),
      &                              a_of_d_TYPE(1,0,1,1),
      &                              a_of_t_TYPE(1,0,1,1),
      &        u_VECTOR_upTYPE(1,0),ierror)
@@ -219,7 +221,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
             
 * to send the odd points up in x-direction
          
-         CALL MPI_TYPE_STRUCT(iter0,a_of_b_TYPE(1,1,1,1),
+         CALL MPI_TYPE_CREATE_STRUCT(iter0,a_of_b_TYPE(1,1,1,1),
      &                              a_of_d_TYPE(1,1,1,1),
      &                              a_of_t_TYPE(1,1,1,1),
      &        u_VECTOR_upTYPE(1,1),ierror)
@@ -250,7 +252,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
                a_of_t_TYPE(iter,0,2,0)=matrixtype
 
                a_of_d_TYPE(iter,0,2,1)=
-     &                    (jump + ownhalfvol(2) - ownhalfvol(1))*extent
+     &           (jump + ownhalfvol(2) - ownhalfvol(1))*extent
                a_of_b_TYPE(iter,0,2,1)=1
                a_of_t_TYPE(iter,0,2,1)=matrixtype
                jump=jump+1
@@ -260,7 +262,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
 * to send the even points in y-direction down
 
-         CALL MPI_TYPE_STRUCT(iter,a_of_b_TYPE(1,0,2,0),
+         CALL MPI_TYPE_CREATE_STRUCT(iter,a_of_b_TYPE(1,0,2,0),
      &                             a_of_d_TYPE(1,0,2,0),
      &                             a_of_t_TYPE(1,0,2,0),
      &        u_VECTOR_dnTYPE(2,0),ierror)
@@ -272,7 +274,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
 * to send the even points in y-direction up
 
-         CALL MPI_TYPE_STRUCT(iter,a_of_b_TYPE(1,0,2,1),
+         CALL MPI_TYPE_CREATE_STRUCT(iter,a_of_b_TYPE(1,0,2,1),
      &                             a_of_d_TYPE(1,0,2,1),
      &                             a_of_t_TYPE(1,0,2,1),
      &        u_VECTOR_upTYPE(2,0),ierror)
@@ -306,7 +308,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
                a_of_t_TYPE(iter,0,3,0)=matrixtype
                 
                a_of_d_TYPE(iter,0,3,1)=
-     &                    (jump - ownhalfvol(2) + ownhalfvol(3))*extent
+     &           (jump - ownhalfvol(2) + ownhalfvol(3))*extent
                a_of_b_TYPE(iter,0,3,1)=1
                a_of_t_TYPE(iter,0,3,1)=matrixtype
                jump=jump+1
@@ -317,7 +319,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
 * to send the even points in z-direction down
 
-         CALL MPI_TYPE_STRUCT(iter,a_of_b_TYPE(1,0,3,0),
+         CALL MPI_TYPE_CREATE_STRUCT(iter,a_of_b_TYPE(1,0,3,0),
      &                             a_of_d_TYPE(1,0,3,0),
      &                             a_of_t_TYPE(1,0,3,0),
      &        u_VECTOR_dnTYPE(3,0),ierror)
@@ -329,7 +331,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
 * to send the even points in z-direction up
 
-         CALL MPI_TYPE_STRUCT(iter,a_of_b_TYPE(1,0,3,1),
+         CALL MPI_TYPE_CREATE_STRUCT(iter,a_of_b_TYPE(1,0,3,1),
      &                             a_of_d_TYPE(1,0,3,1),
      &                             a_of_t_TYPE(1,0,3,1),
      &        u_VECTOR_upTYPE(3,0),ierror)
@@ -354,17 +356,18 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
       ! CHANGEME this is really an abuse this npdim=nc^2 - 1
       CALL MPI_TYPE_CONTIGUOUS(npdim,MPI_REAL,higgstype,ierror)
       CALL MPI_TYPE_COMMIT(higgstype,ierror)
-      CALL MPI_TYPE_EXTENT(higgstype,extent2,ierror)
+      lb=1
+      CALL MPI_TYPE_GET_EXTENT(higgstype,lb,extent2,ierror)
 
-      CALL MPI_ADDRESS(a(1,1,0),ad1,ierror)
-      CALL MPI_ADDRESS(a(1,2,0),ad2,ierror)
+      CALL MPI_GET_ADDRESS(a(1,1,0),ad1,ierror)
+      CALL MPI_GET_ADDRESS(a(1,2,0),ad2,ierror)
       extent=ad2-ad1
 
-*      if(myrank==root)then
-*         write (*,*) 'higgstype'
-*         write (*,*) 'MPI_EXTENT=',extent2
-*         write (*,*) 'EXTENT=',extent
-*      end if
+      if(myrank==root)then
+         write (*,*) 'higgstype'
+         write (*,*) 'MPI_EXTENT=',extent2
+         write (*,*) 'EXTENT=',extent
+      end if
 
 ***************************************************************************
 *
@@ -443,7 +446,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
             
 * to send the even points in x-direction down   
 
-         CALL MPI_TYPE_STRUCT(iter0,a_of_b_TYPE(1,0,1,0),
+         CALL MPI_TYPE_CREATE_STRUCT(iter0,a_of_b_TYPE(1,0,1,0),
      &                              a_of_d_TYPE(1,0,1,0),
      &                              a_of_t_TYPE(1,0,1,0),
      &        a_VECTOR_dnTYPE(1,0),ierror)
@@ -451,7 +454,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
 * to send the odd points in x-direction down   
          
-         CALL MPI_TYPE_STRUCT(iter0,a_of_b_TYPE(1,1,1,0),
+         CALL MPI_TYPE_CREATE_STRUCT(iter0,a_of_b_TYPE(1,1,1,0),
      &                              a_of_d_TYPE(1,1,1,0),
      &                              a_of_t_TYPE(1,1,1,0),
      &        a_VECTOR_dnTYPE(1,1),ierror)
@@ -459,7 +462,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
 * to send the even points in x-direction up   
 
-         CALL MPI_TYPE_STRUCT(iter0,a_of_b_TYPE(1,0,1,1),
+         CALL MPI_TYPE_CREATE_STRUCT(iter0,a_of_b_TYPE(1,0,1,1),
      &                              a_of_d_TYPE(1,0,1,1),
      &                              a_of_t_TYPE(1,0,1,1),
      &        a_VECTOR_upTYPE(1,0),ierror)
@@ -467,7 +470,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
          
 * to send the odd points in x-direction up   
 
-         CALL MPI_TYPE_STRUCT(iter0,a_of_b_TYPE(1,1,1,1),
+         CALL MPI_TYPE_CREATE_STRUCT(iter0,a_of_b_TYPE(1,1,1,1),
      &                              a_of_d_TYPE(1,1,1,1),
      &                              a_of_t_TYPE(1,1,1,1),
      &        a_VECTOR_upTYPE(1,1),ierror)
@@ -508,7 +511,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
          
 * to send the even points in y-direction down   
 
-         CALL MPI_TYPE_STRUCT(iter,a_of_b_TYPE(1,0,2,0),
+         CALL MPI_TYPE_CREATE_STRUCT(iter,a_of_b_TYPE(1,0,2,0),
      &                             a_of_d_TYPE(1,0,2,0),
      &                             a_of_t_TYPE(1,0,2,0),
      &        a_VECTOR_dnTYPE(2,0),ierror)
@@ -520,7 +523,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
 * to send the even points in y-direction up   
 
-         CALL MPI_TYPE_STRUCT(iter,a_of_b_TYPE(1,0,2,1),
+         CALL MPI_TYPE_CREATE_STRUCT(iter,a_of_b_TYPE(1,0,2,1),
      &                             a_of_d_TYPE(1,0,2,1),
      &                             a_of_t_TYPE(1,0,2,1),
      &        a_VECTOR_upTYPE(2,0),ierror)
@@ -564,7 +567,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
 * to send the even points in z-direction down
 
-         CALL MPI_TYPE_STRUCT(iter,a_of_b_TYPE(1,0,3,0),
+         CALL MPI_TYPE_CREATE_STRUCT(iter,a_of_b_TYPE(1,0,3,0),
      &                             a_of_d_TYPE(1,0,3,0),
      &                             a_of_t_TYPE(1,0,3,0),
      &        a_VECTOR_dnTYPE(3,0),ierror)
@@ -576,7 +579,7 @@ c     ierror    Generic MPI error code. See paralllel_parameter.inc
 
 * to send the even points in z-direction up
 
-         CALL MPI_TYPE_STRUCT(iter,a_of_b_TYPE(1,0,3,1),
+         CALL MPI_TYPE_CREATE_STRUCT(iter,a_of_b_TYPE(1,0,3,1),
      &                             a_of_d_TYPE(1,0,3,1),
      &                             a_of_t_TYPE(1,0,3,1),
      &        a_VECTOR_upTYPE(3,0),ierror)
