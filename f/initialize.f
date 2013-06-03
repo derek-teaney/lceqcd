@@ -57,9 +57,9 @@
       lasttime(2)=MPI_WTIME()
       needtime(2)=lasttime(2)-firsttime(2)
 
-      if (myrank.eq.0) then 
+      !if (myrank.eq.0) then 
          write(*,*)'Time needed for initialisation ', needtime(2)
-      endif
+      !endif
 
 
       end subroutine initialize
