@@ -29,20 +29,22 @@
      2        nmu,even,odd
 
       PARAMETER (nc   = 2)  ! number of colours
-      PARAMETER (nmu  = 3)  ! dimension
-      PARAMETER (even = 0)
-      PARAMETER (odd  = 1)
+      PARAMETER (nmu  = 3)  ! dimension, and also used as nc^2-1 in spots
+      PARAMETER (even = 0)  ! loops over even, and odd
+      PARAMETER (odd  = 1)  !
 
-      PARAMETER (nx = 24)    !
-      PARAMETER (ny = 24)    ! maximal number of sites in
-      PARAMETER (nz = 24)    ! x,y,z direction
+      PARAMETER (nx = 24)    ! maximal number of sites in
+      PARAMETER (ny = 24)    ! x,y,z direction this should be an 
+      PARAMETER (nz = 24)    ! even number
 
-      PARAMETER (nxhalf     = nx/2)   
-      PARAMETER (Volxy      = nx*ny)
-      PARAMETER (Volxyhalf  = Volxy/2)
+      PARAMETER (nxhalf     = nx/2)    ! number of even slots in x
+      PARAMETER (Volxy      = nx*ny)   ! number of xy slots
+      PARAMETER (Volxyhalf  = Volxy/2) ! number of even xy slots
       PARAMETER (nsites     = nx*ny*nz) ! Volume
-      PARAMETER (nsiteshalf = nsites/2)
+      PARAMETER (nsiteshalf = nsites/2) ! number of even sits
       PARAMETER (nlink      = nsites*nmu)    ! number of links
 
 * maximal spatial size of the linkfield with even/odd decomposition
       PARAMETER (maxarray   = nsiteshalf+Volxyhalf+4)
+
+C 
