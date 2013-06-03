@@ -1,70 +1,93 @@
-#
-# include teh definition of object and include files
-#
+FFLAGS =  -ffixed-line-length-256 
+LFLAGS = 
 
-include ../makeinclude
-
-#
-# the bin directory
-#
-
-BIN=$(HOME)/bin
+OBJDIR = .
+SRCDIR = ../f
+EXEDIR = ../runs
 
 #
-# define linker
+# directory where include files may be found
 #
 
-LD = f90
+INC     = $(SRCDIR)/INCLUDE
 
+# works on plm using mpich
 #
-# -Wl flags for linker
-#
-#     -M MAP,e,a     - make a load map sort by address and cross ref
-#                      see man mppldrLDFLAGS = -Wl'-M MAP,e,a -X1'
-#
-#     -Xn            - number of processors to compile for
-#                      if not set binary will be relinked at run time.
-#                      X1 is special as it will not complain if run
-#                      on a different number (for SPMD message passing),
-#                      but the values of N$PES which is used in this 
-#                      version is the value set at compile time, so it
-#                      will not work here: each PE will see N$PES = 1.
-#
-#     -f zeros       - initialises all variables with 0
-#        nan               "                "         Not a Number
-#
-#     -lmpi          - link to the MPI library (was behind -lapp)
-#     -lapp          - link to apprentice libraries
+#   F90 = /usr/lib64/mpich2/bin/mpif90
+#   INCPATH = -I $(INC)
 
-LDFLAGS = -Wl'-X$(NP)' 
+# works on plm using openmpi
+#   F90 = mpif90
+#   INCPATH = -I $(INC)
 
-#
-# Libraries
-#
+F90 = openmpif90
+INCPATH = -I $(INC)
 
-LIBS    = -lmpi -lapp
+#endif
 
-#
-#  names of the executables
-#
-
-HYBEXE=$(HOME)/bin/higgs_$(KIND)_$(NP)
-
-#
-# how to create the executable
-#
-
-$(HYBEXE): $(OBJ) makefile
-	@echo ''                                
-	@echo '********************************'
-	@echo '**linking higgs_$(KIND)_$(NP)'**  
-	@echo '********************************'
-	@echo ''                                
-	@$(LD) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
-	@echo ''                                
-	@echo '********************************'
-	@echo '************ READY *************'
-	@echo '********************************'
+SRC1 = \
+$(SRCDIR)/adresses.f \
+$(SRCDIR)/a_force.f \
+$(SRCDIR)/agauge.f \
+$(SRCDIR)/ahiggs2.f \
+$(SRCDIR)/ahiggs3.f \
+$(SRCDIR)/confget.f \
+$(SRCDIR)/confsave.f \
+$(SRCDIR)/correlator.f \
+$(SRCDIR)/finalize.f \
+$(SRCDIR)/gauss.f \
+$(SRCDIR)/heat_kpi.f \
+$(SRCDIR)/initialize.f \
+$(SRCDIR)/it_gauge_fixing.f \
+$(SRCDIR)/landau_gauge.f \
+$(SRCDIR)/luxury.f \
+$(SRCDIR)/matmul.f \
+$(SRCDIR)/meas1.f \
+$(SRCDIR)/meas2a.f \
+$(SRCDIR)/measinit.f \
+$(SRCDIR)/or_gauge_fixing1.f \
+$(SRCDIR)/paraminit.f \
+$(SRCDIR)/paratypeconstruct.f \
+$(SRCDIR)/polyakov.f \
+$(SRCDIR)/readdata.f \
+$(SRCDIR)/renorm.f \
+$(SRCDIR)/scalarcorr.f \
+$(SRCDIR)/staples.f \
+$(SRCDIR)/testmax.f \
+$(SRCDIR)/topology.f \
+$(SRCDIR)/typeconstruct.f \
+$(SRCDIR)/u_f_renorm.f \
 
 
+
+#
+#Names of the INCLUDE FILES
+#
+
+INC_FILES=$(INC)/const.inc                \
+          $(INC)/filenames.inc            \
+          $(INC)/gaugefield.inc           \
+          $(INC)/input_parameter.inc      \
+          $(INC)/measurement.inc          \
+          $(INC)/parallel_mpi_types.inc   \
+          $(INC)/parallel_parameter.inc   \
+          $(INC)/parameter.inc            \
+          $(INC)/pointer.inc              \
+          $(INC)/times.inc                \
+
+
+MAIN1 =  \
+$(SRCDIR)/main.f
+
+SRC1O     = $(patsubst $(SRCDIR)%.f, $(OBJDIR)%.o, $(SRC1))
+
+
+all: $(EXEDIR)/main 
+
+$(EXEDIR)/main: $(OBJDIR)/main.o $(SRC1O) 
+	$(F90) $(LFLAGS) $(FFLAGS) $(OBJDIR)/main.o $(SRC1O) -o $@ $(LIBS) \
+
+
+$(OBJDIR)/%.o : $(SRCDIR)/%.f $(INC_FILES)
+	$(F90) $(INCPATH) -c $(FFLAGS) $<  -o $@
 
