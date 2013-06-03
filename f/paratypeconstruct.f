@@ -17,11 +17,12 @@
 
       subroutine paratypeconstruct
 
+*      USE mpi
       implicit none
+      INCLUDE 'mpif.h'
 *
 *including all global MESSAGE PASSING variables 
 *
-      INCLUDE 'mpif.h'
       INCLUDE 'parallel_parameter.inc'
       INCLUDE 'parallel_mpi_types.inc'
 *
@@ -32,8 +33,10 @@
 *
 *definition of the VARIABLES used for MPI
 *
-      integer a_of_b_paramet(2),a_of_d_paramet(2),a_of_t_paramet(2),
-     1        realextent(0:2),i
+      integer a_of_b_paramet(2),a_of_t_paramet(2)
+
+      integer (kind=MPI_ADDRESS_KIND) :: a_of_d_paramet(2),
+     &                                   length_block, ad2, ad1, extent
 
 ***********************************************************************
 *
@@ -61,25 +64,25 @@
 
 * paramet
 
+      length_block=1
+      call MPI_TYPE_GET_EXTENT(MPI_REAL, length_block, extent, ierror)
       call mpi_barrier(comm,ierror)
-      CALL MPI_TYPE_EXTENT(MPI_REAL,realextent(0),ierror)
+      CALL MPI_GET_ADDRESS(beta,ad1,ierror)
       call mpi_barrier(comm,ierror)
-      CALL MPI_ADDRESS(beta,realextent(1),ierror)
-      call mpi_barrier(comm,ierror)
-      CALL MPI_ADDRESS(x,realextent(2),ierror)
-
+      CALL MPI_GET_ADDRESS(inorm,ad2,ierror)
+      CALL mpi_barrier(comm,ierror)
 
       a_of_b_paramet(1)=7
       a_of_b_paramet(2)=6
 
       a_of_d_paramet(1)=0
-      a_of_d_paramet(2)=7*(realextent(2)-realextent(1))
+      a_of_d_paramet(2)=ad2-ad1
 
       a_of_t_paramet(1)=MPI_REAL
       a_of_t_paramet(2)=MPI_INTEGER
 
       call mpi_barrier(comm,ierror)
-      CALL MPI_TYPE_STRUCT(2,a_of_b_paramet,a_of_d_paramet,
+      CALL MPI_TYPE_CREATE_STRUCT(2,a_of_b_paramet,a_of_d_paramet,
      &                     a_of_t_paramet,paramettype,ierror)
       call mpi_barrier(comm,ierror)
       CALL MPI_TYPE_COMMIT(paramettype,ierror)
