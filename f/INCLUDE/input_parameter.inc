@@ -19,6 +19,16 @@
 *                                                                  *
 ********************************************************************
 ********************************************************************
+      ! gfortran needs twelve seeds to start rd nb generator
+      INTEGER, parameter :: nseed=16       
+      ! Dimensions of array storing 
+      INTEGER, parameter :: nseedblock=4095 
+
+c !!! WARNING !!!!
+c
+c Do not reoorder common blocks without great care to modify 
+c paratypeconstruct.f
+c
 
       REAL     beta               ! gauge coupling          
       REAL     x                  ! continuum parameter 1
@@ -27,19 +37,24 @@
       REAL     alpha              ! parameter for iter. gauge fixing
       REAL     limit_or           ! limit on (D_mu A_mu)^2 = 0
       REAL     limit_it           ! limit on (D_mu A_mu)^2 = 0
-      INTEGER  init               ! controls gauge initialisation
-      INTEGER  rand               ! old(=0) or new(=1) random numbers
-      INTEGER  save               ! save on disc yes or no (1,0)
-      INTEGER  confstart          ! starting configuration
+
       INTEGER  inorm              ! number of steps before normalizing u_f
       INTEGER  nsweep_flag        ! flag to toggle between nsweep and ntime
       INTEGER  ntime              ! maximum of time for the program
       INTEGER  nsweep             ! number of nsweep                
       INTEGER  imeas              ! number of steps without measurements
       INTEGER  imode              ! heatbath mode
-      INTEGER  iseed(1)           ! local seed for the rd nb generator
-      INTEGER  iseedblock(0:255)  ! all seeds
+
+      INTEGER  iseed(nseed)       ! local seed for the rd nb generator
+      INTEGER  iseedblock(0:nseedblock) ! all seeds
       REAL     beta_a,beta_2,beta_4 ! aux. parameters
+
+      INTEGER  init               ! controls gauge initialisation
+      INTEGER  rand               ! old(=0) or new(=1) random numbers
+      INTEGER  save               ! save on disc yes or no (1,0)
+      INTEGER  confstart          ! starting configuration
+
+
 ***********************************************************************
 *
 *                     THE COMMON BLOCK
